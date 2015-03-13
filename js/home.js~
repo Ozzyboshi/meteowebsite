@@ -10,6 +10,8 @@ $(document).ready(function () {
 	
 	print_gauge_pressione($('#gaugepressione'),1600);
 	print_gauge_vento($('#gaugevento'),1600);
+	
+	print_termometro_pioggia($('#termometropioggia'));
 });
 
 function handleRefresh(url) {
@@ -49,12 +51,9 @@ function updateMeteo(sales) {
 	
 	$("#gaugepressione").jqxGauge('setValue', sales[0].pressione*1);
 
-	if (sales[0].vento_direzione=="0")
-		$("#gaugevento").jqxGauge('setValue', 90);
-	if (sales[0].vento_direzione=="1")
-		$("#gaugevento").jqxGauge('setValue', 112);
-	if (sales[0].vento_direzione=="2")
-		$("#gaugevento").jqxGauge('setValue', 135);
+	$("#gaugevento").jqxGauge('setValue', 90+(22.5*sales[0].vento_direzione));
+	$('#termometropioggia').jqxLinearGauge('value',sales[0].pioggia_parziale_day*1);
+	$("#pioggiamezzanotte").text(sales[0].pioggia_parziale_day*1+" mm");
 }
 
 function print_termometro(divobjectselector)
@@ -133,38 +132,35 @@ function print_gauge_vento(divobjectselector,maxvalue)
 	//var labels = { visible: false, position: 'inside',interval:100 };
 	
 	$(divobjectselector).jqxGauge({
-				
 				cap: { radius: 0.04 },
 				value: 0,
 				style: { stroke: '#ffffff', 'stroke-width': '1px', fill: '#ffffff' },
 				animationDuration: 1500,
 				colorScheme: 'scheme04',
-pointer: { length: '50%', width: '10%' },
-				ticksMinor: { interval: 45, size: '5%' },
-				ticksMajor: { interval: 90, size: '10%' },
+				pointer: { length: '50%', width: '10%' },
+				ticksMinor: { interval: 22.5, size: '5%' },
+				ticksMajor: { interval: 45, size: '15%' },
 				labels: {
-			position: 'outside',
-                    distance: '38%',
-                    interval: 90,
-                    formatValue: function (val) {
-
-                        if (val == 0) {
-                            return 'W';
-                        }
-			else if (val == 90 ) {
-			    return 'N';
-			}
-			else if (val == 180 ) {
-			    return 'E';
-			}
-			else if (val == 270 ) {
-			    return 'S';
-			}
-			return '';
-
-			
-                    }
-                },
+					position: 'outside',distance: '198px',interval: 45,
+					formatValue: function (val) 
+					{
+						if (val == 0) return 'W';
+						else if (val == 45) return 'NW';
+						else if (val == 135) return 'NE';
+						else if (val == 225) return 'SE';
+						else if (val == 315) return 'SW';
+						else if (val == 90 ) {
+							return 'N';
+						}
+						else if (val == 180 ) {
+							return 'E';
+						}
+						else if (val == 270 ) {
+							return 'S';
+						}
+						return '';
+					}
+				},
 	});
 	$(divobjectselector).jqxGauge({ width: 220 });
 	$(divobjectselector).jqxGauge({ height: 220 });
@@ -172,4 +168,27 @@ pointer: { length: '50%', width: '10%' },
 	$(divobjectselector).jqxGauge({ max: 360 });
 	$(divobjectselector).jqxGauge({ startAngle: 0 });
 	$(divobjectselector).jqxGauge({ endAngle: 360 });
+}
+
+function print_termometro_pioggia(divobjectselector)
+{
+	var theme = getDemoTheme(),
+				majorTicks = { size: '15%', interval: 2 },
+				minorTicks = { size: '5%', interval: 1, style: { 'stroke-width': 1, stroke: '#aaaaaa'} },
+				labels = { interval: 2 };
+				
+	divobjectselector.jqxLinearGauge({
+				orientation: 'vertical',
+				labels: labels,
+				ticksMajor: majorTicks,
+				ticksMinor: minorTicks,
+				max: 20,
+				value: 0,
+				pointer: { size: '6%', style: { fill: '#FF0000'} },
+				colorScheme: 'scheme05',
+	});
+	divobjectselector.jqxLinearGauge({ pointer: { pointerType: 'default', size: '5%', visible: true, offset: -5,style: { fill: '#FF0000'}}});
+	divobjectselector.jqxLinearGauge({height: 250 });
+	divobjectselector.jqxLinearGauge({width: 100 })
+	divobjectselector.jqxLinearGauge({min: 0 });
 }

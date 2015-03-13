@@ -28,7 +28,7 @@ function handleRefresh(url) {
 	}
 }
 function updateMeteo(sales) {
-	var date = new Date(sales[0].data+=" UTC");
+	var date = new Date(String(sales[0].data).replace(" ","T")+"Z");
 	
 	$("#data").text(date.toString());
 	$("#tempesterna").text(sales[0].temperatura_esterna*1+" °");
